@@ -12,11 +12,22 @@ var token = process.env.SLACK_API_TOKEN || '';
 var rtm = new RtmClient(token, { logLevel: 'warning' });
 rtm.start();
 
+function safeModuleName(module) {
+	var containsSlash = module.indexOf('/') != -1;
+	var containsDot = module.indexOf('.') != -1;
+	return !(containsSlash || containsDot);
+}
+
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 	if (message.type == 'message' && message.text[0] == '?') {
 		try {
 			var pieces = message.text.substring(1).split(' ');
 			var module = pieces[0];
+
+			if (!safeModuleName(module)) {
+				console.log('unsafe: ' + module);
+				return;
+			}
 			var moduleName = './modules/' + module + '.js'
 			var handler = require(moduleName);
 
