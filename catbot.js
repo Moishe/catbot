@@ -19,14 +19,22 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 			var module = pieces[0];
 			var moduleName = './modules/' + module + '.js'
 			var handler = require(moduleName);
-			var result = handler.handle(pieces);
+
+			var LocalStorage;
+			var localStorage;
+			if (handler.needsStorage && handler.needsStorage()) {
+				LocalStorage = require('node-localstorage').LocalStorage;
+				localStorage = new LocalStorage('./data/' + module);
+			}
+
+			pieces.shift();
+			var result = handler.handle(pieces, localStorage);
 			if (result) {
 				rtm.sendMessage(result, message.channel);
 			}
 
 			// unload the module so changes will be picked up without restarting the server
 			var name = require.resolve(moduleName);
-			console.log(name);
 			delete require.cache[name];
 		} catch (e) {
 			console.log('nope: ' + e);
