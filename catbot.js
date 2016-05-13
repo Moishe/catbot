@@ -38,6 +38,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
 			delete require.cache[name];
 		} catch (e) {
 			console.log('nope: ' + e);
+			console.log(e.stack);
 		}
 	}
 });
