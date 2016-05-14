@@ -9,6 +9,8 @@ exports.handle = function(pieces, userData, globalData) {
 
 	pluses += 1;
 
+	userData['pluses'] = pluses;
+
 	return {
 		'message': "One more plus for " + user + "! " + user + " now has " + pluses + " pluses!",
 		'userData': userData

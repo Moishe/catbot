@@ -4,9 +4,8 @@
 
 /* eslint no-console:0 */
 
-catbotRunner = require('./catbot-runner').CatRunner;
-
-console.log(JSON.stringify(catbotRunner));
+catbotModule = require('./catbot-runner');
+catbotRunner = new catbotModule.CatRunner();
 
 catbotRunner.init();
 catbotRunner.start();

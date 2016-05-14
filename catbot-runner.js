@@ -55,22 +55,23 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 			}
 
 			pieces.shift();
-			var userData = this.userStorage.getItem(pieces[0]) || {};
-			var globalData = this.globalStorage.getItem(module) || {};
+			var userData = JSON.parse(this.userStorage.getItem(pieces[0]) || '{}');
+			var globalData = JSON.parse(this.globalStorage.getItem(module) || '{}');
 
 			result = handler.handle(pieces, userData, globalData);
 
 			if (result) {
+				console.log(result);
 				if (result.message) {
-					rtm.sendMessage(result.message, message.channel);
+					this.rtm.sendMessage(result.message, message.channel);
 				}
 
 				if (result.userData) {
-					this.userStorage.setItem(pieces[0], result.userData);
+					this.userStorage.setItem(pieces[0], JSON.stringify(result.userData));
 				}
 
 				if (result.globalData) {
-					this.globalStorage.setItem(module, result.globalData);
+					this.globalStorage.setItem(module, JSON.stringify(result.globalData));
 				}
 			}
 
