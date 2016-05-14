@@ -17,9 +17,10 @@ exports.testSimpleInit = function(test) {
 
 exports.testLoadsModule = function(test) {
 	runner = makeRunner(test);
+	runner.init();
 	var _loader = runner.loader;
 	runner.loader = function(moduleName) {
-		test.equal(moduleName, '++');
+		test.equal(moduleName, './modules/++.js');
 		return null;
 	}
 
@@ -33,7 +34,7 @@ exports.testLoadsModuleWithUserInfo = function(test) {
 	runner.init();
 	var _loader = runner.loader;
 	runner.loader = function(moduleName) {
-		test.equal(moduleName, '++');
+		test.equal(moduleName, './modules/++.js');
 		return {
 			"options": function() { 
 				return {

@@ -39,7 +39,6 @@ CatRunner.prototype.start = function() {
 };
 
 CatRunner.prototype.loader = function(moduleName) {
-	moduleName = './modules/' + moduleName + '.js'
 	return require(moduleName);
 }
 
@@ -47,29 +46,32 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 	if (message.type == 'message' && message.text[0] == '?') {
 		try {
 			pieces = message.text.substring(1).split(' ');
-			module = this.sanitize(pieces[0]);
+			moduleName = './modules/' + this.sanitize(pieces[0]) + '.js'
 
-			handler = this.loader(module);
+
+			handler = this.loader(moduleName);
 			if (!handler) {
 				return;
 			}
 
 			pieces.shift();
-			userData = userStorage.getItem(pieces[0]);
-			globalData = globalStorage.getItem(module);
+			var userData = this.userStorage.getItem(pieces[0]) || {};
+			var globalData = this.globalStorage.getItem(module) || {};
 
 			result = handler.handle(pieces, userData, globalData);
 
-			if (result.message) {
-				rtm.sendMessage(result.message, message.channel);
-			}
+			if (result) {
+				if (result.message) {
+					rtm.sendMessage(result.message, message.channel);
+				}
 
-			if (result.userData) {
-				userStorage.setItem(pieces[0], result.userData);
-			}
+				if (result.userData) {
+					this.userStorage.setItem(pieces[0], result.userData);
+				}
 
-			if (result.globalData) {
-				globalStorage.setItem(module, result.globalData);
+				if (result.globalData) {
+					this.globalStorage.setItem(module, result.globalData);
+				}
 			}
 
 			// unload the module so changes will be picked up without restarting the server
