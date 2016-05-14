@@ -11,14 +11,6 @@ And look for a file named `module.js` in the modules directory. If that file exi
 
 if the module defines a function called `needsStorage` and that function returns `true`, a localStorage object will be created, initialized to a private store for that module, and passed as the second parameter to the `handle` method in the module.
 
-Requires [node-slack-client](https://github.com/slackhq/node-slack-client), which you can install with:
-
-```npm install @slack/client --save```
-
-as well as [node-localstorage](https://www.npmjs.com/package/node-localstorage):
-
-```npm install node-localstorage```
-
 To run,
 
 ```SLACK_API_TOKEN=[token] node catbot.js```
