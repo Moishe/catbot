@@ -30,6 +30,7 @@ exports.testLoadsModule = function(test) {
 
 exports.testLoadsModuleWithUserInfo = function(test) {
 	runner = makeRunner(test);
+	runner.init();
 	var _loader = runner.loader;
 	runner.loader = function(moduleName) {
 		test.equal(moduleName, '++');
