@@ -4,7 +4,8 @@
   "description": "catbot ---",
   "main": "catbot.js",
   "scripts": {
-    "test": "nodeunit tests/catbot-runner-test.js"
+    "test": "nodeunit tests/catbot-runner-test.js",
+    "start": "node catbot.js"
   },
   "repository": {
     "type": "git",
