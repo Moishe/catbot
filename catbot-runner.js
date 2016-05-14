@@ -66,7 +66,8 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 			var userData = JSON.parse(this.userStorage.getItem(pieces[0]) || '{}');
 			var globalData = JSON.parse(this.globalStorage.getItem(module) || '{}');
 
-			result = handler.handle(pieces, userData, globalData);
+			var clonedPieces = pieces.slice(0);
+			result = handler.handle(clonedPieces, userData, globalData);
 
 			if (result) {
 				console.log(result);
@@ -75,6 +76,7 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 				}
 
 				if (result.userData) {
+					console.log("new userdata: " + JSON.stringify(result.userData));
 					this.userStorage.setItem(pieces[0], JSON.stringify(result.userData));
 				}
 
