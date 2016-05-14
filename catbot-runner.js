@@ -1,4 +1,6 @@
 function CatRunner() {
+	console.log("constructing.");
+
 	this.RtmClient = undefined;
 	this.RTM_EVENTS = undefined;
 
@@ -8,9 +10,12 @@ function CatRunner() {
 
 	this.LocalStorage = undefined;
 	this.commonStorage = undefined;
+
+	console.log("constructed.");
 };
 
 CatRunner.prototype.init = function(client, events, tok, rtm, store, cstore) {
+	console.log("initializing.");
 	this.RtmClient = client || require('@slack/client').RtmClient;
 	this.RTM_EVENTS = events || require('@slack/client').RTM_EVENTS;
 
@@ -22,9 +27,11 @@ CatRunner.prototype.init = function(client, events, tok, rtm, store, cstore) {
 	this.globalStorage = new this.LocalStorage('./data/common');
 
 	this.sanitize = require("sanitize-filename");
+	console.log("initialized.");
 };
 
 CatRunner.prototype.start = function() {
+	console.log("starting");
 	this.rtm.start();
 
 	var self = this;
@@ -36,6 +43,7 @@ CatRunner.prototype.start = function() {
 	this.rtm.on(this.RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) {
 	  // TODO
 	});
+	console.log("started");
 };
 
 CatRunner.prototype.loader = function(moduleName) {
