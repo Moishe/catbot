@@ -18,7 +18,10 @@ CatRunner.prototype.init = function(client, events, tok, rtm, store, cstore) {
 	this.rtm = new this.RtmClient(this.token, { logLevel: 'warning' });
 
 	this.LocalStorage = require('node-localstorage').LocalStorage;
-	this.commonStorage = new this.LocalStorage('./data/' + module);
+	this.userStorage = new this.LocalStorage('./data/users');
+	this.globalStorage = new this.LocalStorage('./data/common');
+
+	this.sanitize = require("sanitize-filename");
 };
 
 CatRunner.prototype.start = function() {
@@ -35,19 +38,8 @@ CatRunner.prototype.start = function() {
 	});
 };
 
-function safeModuleName(module) {
-	// TODO: there is probably a better way to guard against this.
-	containsSlash = module.indexOf('/') != -1;
-	containsDot = module.indexOf('.') != -1;
-	return !(containsSlash || containsDot);
-}
-
 CatRunner.prototype.loader = function(moduleName) {
-	if (!safeModuleName(module)) {
-		console.log('unsafe: ' + module);
-		return;
-	}
-	moduleName = './modules/' + module + '.js'
+	moduleName = './modules/' + moduleName + '.js'
 	return require(moduleName);
 }
 
@@ -55,23 +47,29 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 	if (message.type == 'message' && message.text[0] == '?') {
 		try {
 			pieces = message.text.substring(1).split(' ');
-			module = pieces[0];
+			module = this.sanitize(pieces[0]);
 
 			handler = this.loader(module);
 			if (!handler) {
 				return;
 			}
 
-			options = handler.options ? handler.options() : {};
-			storage = commonStorage;
-			if (options.storage) {
-				storage = new LocalStorage('./data/' + module);
+			pieces.shift();
+			userData = userStorage.getItem(pieces[0]);
+			globalData = globalStorage.getItem(module);
+
+			result = handler.handle(pieces, userData, globalData);
+
+			if (result.message) {
+				rtm.sendMessage(result.message, message.channel);
 			}
 
-			pieces.shift();
-			result = handler.handle(pieces, storage);
-			if (result) {
-				rtm.sendMessage(result, message.channel);
+			if (result.userData) {
+				userStorage.setItem(pieces[0], result.userData);
+			}
+
+			if (result.globalData) {
+				globalStorage.setItem(module, result.globalData);
 			}
 
 			// unload the module so changes will be picked up without restarting the server

@@ -27,3 +27,33 @@ exports.testLoadsModule = function(test) {
 
 	test.done();
 }
+
+exports.testLoadsModuleWithUserInfo = function(test) {
+	runner = makeRunner(test);
+	var _loader = runner.loader;
+	runner.loader = function(moduleName) {
+		test.equal(moduleName, '++');
+		return {
+			"options": function() { 
+				return {
+					'storage': true,
+					'privatestore': false,
+				} 
+			},
+
+			"handle": function(pieces, globalProperties, userProperties) {
+				var user = pieces[0];
+
+				if (userProperties['pluses']) {
+					userProperties['plus'] += 1;
+				} else {
+					userProperties['plus'] = 0;
+				}
+			}
+		}
+	}
+
+	runner.handleRtmMessage({'type': 'message', 'text': "?++ foo"});
+
+	test.done();	
+}
