@@ -42,18 +42,25 @@ function safeModuleName(module) {
 	return !(containsSlash || containsDot);
 }
 
-CatRunner.prototype.handleRtmMessage = function() {
+CatRunner.prototype.loader = function(moduleName) {
+	if (!safeModuleName(module)) {
+		console.log('unsafe: ' + module);
+		return;
+	}
+	moduleName = './modules/' + module + '.js'
+	return require(moduleName);
+}
+
+CatRunner.prototype.handleRtmMessage = function(message) {
 	if (message.type == 'message' && message.text[0] == '?') {
 		try {
 			pieces = message.text.substring(1).split(' ');
 			module = pieces[0];
 
-			if (!safeModuleName(module)) {
-				console.log('unsafe: ' + module);
+			handler = this.loader(module);
+			if (!handler) {
 				return;
 			}
-			moduleName = './modules/' + module + '.js'
-			handler = require(moduleName);
 
 			options = handler.options ? handler.options() : {};
 			storage = commonStorage;
