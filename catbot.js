@@ -8,8 +8,6 @@ const proxy = require('express-http-proxy')
 const bodyParser = require('body-parser')
 const _ = require('lodash')
 
-console.log("ENVIRONMENT: " + JSON.stringify(process.env));
-
 var app = express()
 
 if (process.env.PROXY_URI) {
