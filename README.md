@@ -35,6 +35,10 @@ Now you can `/invite catbot` into your channels, and try `?++ foo` to make sure 
 
 You can add new modules in the `modules` directory; look at `echo.js` and `++.js` for sample code.
 
+*Note:* If you want to use the ?meme module, you'll also need to install the imagemagick binaries:
+
+```brew install imagemagick```
+
 Tutorial with Heroku
 ---
 

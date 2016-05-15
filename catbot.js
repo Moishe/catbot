@@ -8,6 +8,8 @@ const proxy = require('express-http-proxy')
 const bodyParser = require('body-parser')
 const _ = require('lodash')
 
+console.log("ENV: " + JSON.stringify(process.env));
+
 var app = express()
 
 if (process.env.PROXY_URI) {
@@ -19,7 +21,8 @@ if (process.env.PROXY_URI) {
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
-app.get('/', function(req, res) { res.send('\n � � \n') })
+app.get('/', function(req, res) { res.send('\n 😻😻 catbot! 😻😻 \n') });
+app.use(express.static(__dirname + '/assets'));
 
 app.listen(process.env.PORT, function(err) {
   if (err) throw err
