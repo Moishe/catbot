@@ -19,9 +19,17 @@ module's `handle` function.
 Quick Start
 ---
 
+Clone this repo and get all its dependencies:
+
+```git clone https://github.com/Moishe/catbot.git```
+```cd catbot```
+```npm install```
+
 Set up a [custom integration for your team](https://api.slack.com/bot-users). Get the API token for the bot, and then run:
 
 ```SLACK_API_TOKEN=[token] npm start```
+
+Now you can `/invite catbot` into your channels, and try `?++ foo` to make sure it's working.
 
 You can add new modules in the `modules` directory; look at `echo.js` and `++.js` for sample code.
 
