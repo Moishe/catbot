@@ -33,6 +33,8 @@ TODO
 Things to do / errata
 ---
 
+Tests should be much better, including better per-module tests.
+
 Note that `user` is the first parameter after module specifier. Currently the module handler() method doesn't
 receive any data about the user who actually typed the command. I suspect this would be useful.
 
@@ -43,10 +45,11 @@ and shouldn't get "user" storage set up.
 Relatedly, currently the 'user' parameter can be any string. It _might_ be more sensible to enforce it to be a reference
 to a user (eg @foo) for consistency but doing that removes some use cases, like "?endorse rain for making things wet".
 
+"Chaining" modules might be nice -- effectively letting a module return a ?command (or an array of them) for the runner
+to process. Eg. let ?endorse chain to ?++.
+
 Storage right now is very very naïve, just using the node implementation of localStorage, which maps to files.
 Would be much better to use SQLite for this.
-
-Tests should be much better, including better per-module tests.
 
 Right now the bot exposes an empty web page. I would love it if each module could return a blob of HTML describing
 stats for users or other module-specific renderings, and then put those on the page. For instance, if someone
