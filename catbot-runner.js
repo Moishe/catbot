@@ -8,8 +8,9 @@ function CatRunner() {
 
 	this.rtm = undefined;
 
-	this.LocalStorage = undefined;
 	this.commonStorage = undefined;
+	this.userStorage = undefined;
+	this.moduleStorage = undefined;
 
 	console.log("constructed.");
 };
@@ -22,9 +23,9 @@ CatRunner.prototype.init = function(client, events, tok, rtm, store, cstore) {
 	this.token = tok || (process.env.SLACK_API_TOKEN || '');
 	this.rtm = new this.RtmClient(this.token, { logLevel: 'warning' });
 
-	this.LocalStorage = require('node-localstorage').LocalStorage;
-	this.userStorage = new this.LocalStorage('./data/users');
-	this.globalStorage = new this.LocalStorage('./data/common');
+	this.Storage = require('./storage').Storage;
+
+	this.commonStorage = new this.Storage('common');
 
 	this.sanitize = require("sanitize-filename");
 	console.log("initialized.");
@@ -47,51 +48,47 @@ CatRunner.prototype.start = function() {
 };
 
 CatRunner.prototype.loader = function(moduleName) {
-	return require(moduleName);
+	// don't throw if moduleName doesn't exist.
+	try { return require(moduleName); } catch (e) {};
 }
 
 CatRunner.prototype.handleRtmMessage = function(message) {
 	if (message.type == 'message' && message.text[0] == '?') {
-		try {
-			pieces = message.text.substring(1).split(' ');
-			moduleName = './modules/' + this.sanitize(pieces[0]) + '.js'
+		pieces = message.text.substring(1).split(' ');
+		moduleName = './modules/' + this.sanitize(pieces[0]) + '.js'
 
-
-			handler = this.loader(moduleName);
-			if (!handler) {
-				return;
-			}
-
-			pieces.shift();
-			var userData = JSON.parse(this.userStorage.getItem(pieces[0]) || '{}');
-			var globalData = JSON.parse(this.globalStorage.getItem(module) || '{}');
-
-			var clonedPieces = pieces.slice(0);
-			result = handler.handle(clonedPieces, userData, globalData);
-
-			if (result) {
-				console.log(result);
-				if (result.message) {
-					this.rtm.sendMessage(result.message, message.channel);
-				}
-
-				if (result.userData) {
-					console.log("new userdata: " + JSON.stringify(result.userData));
-					this.userStorage.setItem(pieces[0], JSON.stringify(result.userData));
-				}
-
-				if (result.globalData) {
-					this.globalStorage.setItem(module, JSON.stringify(result.globalData));
-				}
-			}
-
-			// unload the module so changes will be picked up without restarting the server
-			name = require.resolve(moduleName);
-			delete require.cache[name];
-		} catch (e) {
-			console.log('nope: ' + e);
-			console.log(e.stack);
+		handler = this.loader(moduleName);
+		if (!handler) {
+			console.log('no handler');
+			return;
 		}
+
+		pieces.shift();
+		var user = pieces[0];
+
+		var userStorage = new this.Storage('users/' + this.sanitize(user));
+		var moduleStorage = new this.Storage('modules/' + moduleName);
+
+		var clonedPieces = pieces.slice(0);
+
+		// protect ourselves from bad code/bugs in the handlers
+		// TODO: maybe only do this if "production" flag is on or something like that.
+		try {
+			result = handler.handle(clonedPieces, userStorage, moduleStorage, this.commonStorage);
+		} catch (e) {
+			console.log("Error in " + moduleName + ": " + e);
+		}
+
+		if (result) {
+			console.log(result);
+			if (result.message) {
+				this.rtm.sendMessage(result.message, message.channel);
+			}
+		}
+
+		// unload the module so changes will be picked up without restarting the server
+		name = require.resolve(moduleName);
+		delete require.cache[name];
 	}
 };
 

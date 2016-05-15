@@ -36,24 +36,14 @@ exports.testLoadsModuleWithUserInfo = function(test) {
 	runner.loader = function(moduleName) {
 		test.equal(moduleName, './modules/++.js');
 		return {
-			"options": function() { 
-				return {
-					'storage': true,
-					'privatestore': false,
-				} 
-			},
-
-			"handle": function(pieces, globalProperties, userProperties) {
-				var user = pieces[0];
-
-				if (userProperties['pluses']) {
-					userProperties['plus'] += 1;
-				} else {
-					userProperties['plus'] = 0;
-				}
+			"handle": function(pieces, userStorage, moduleStorage, commonStorage) {
+				test.ok(userStorage);
+				test.ok(moduleStorage);
+				test.ok(commonStorage);
 			}
 		}
 	}
+	_loader('foo');
 
 	runner.handleRtmMessage({'type': 'message', 'text': "?++ foo"});
 

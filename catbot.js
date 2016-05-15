@@ -1,9 +1,4 @@
-catbotModule = require('./catbot-runner');
-catbotRunner = new catbotModule.CatRunner();
-
-catbotRunner.init();
-catbotRunner.start();
-
+const catbotModule = require('./catbot-runner');
 // In the future we should serve a pretty webpage with user stats!
 // For now we have a simple app that doesn't do anything but listen
 // and serve a dummy webpage
@@ -30,4 +25,9 @@ app.listen(process.env.PORT, function(err) {
   if (err) throw err
 
   console.log('Listening on ' + process.env.PORT);
+
+  catbotRunner = new catbotModule.CatRunner();
+
+  catbotRunner.init();
+  catbotRunner.start();
 })

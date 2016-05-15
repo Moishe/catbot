@@ -1,12 +1,21 @@
-exports.handle = function(pieces, userData, commonData) {
+exports.handle = function(pieces, userStorage, moduleStorage, commonStorage) {
   var user = pieces.shift();
 
-  var endorsements = JSON.parse(userData['endorsements'] || '{}');
+  var endorsements = JSON.parse(userStorage.getItem('endorsements') || '{}');
+
+  var annotatedEndorsements = [];
+
+  for (var endorsement in endorsements) {
+    if (endorsements[endorsement] == 1) {
+      annotatedEndorsements.push(endorsement);
+    } else {
+      annotatedEndorsements.push(endorsement + " (" + endorsements[endorsement] + ")");
+    }
+  }
 
   var message = '';
   if (Object.keys(endorsements).length) {
-    // TODO: add counts
-    message = '*' + user + '* has been endorsed for: ' + Object.keys(endorsements).join(', ');
+    message = '*' + user + '* has been endorsed for: ' + annotatedEndorsements.join(', ');
   } else {
     message = '*' + user + '* has no endorsements! You should endorse them for something!';
   }
