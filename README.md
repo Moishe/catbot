@@ -22,7 +22,9 @@ Quick Start
 Clone this repo and get all its dependencies:
 
 ```git clone https://github.com/Moishe/catbot.git```
+
 ```cd catbot```
+
 ```npm install```
 
 Set up a [custom integration for your team](https://api.slack.com/bot-users). Get the API token for the bot, and then run:
