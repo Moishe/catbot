@@ -64,7 +64,12 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 		}
 
 		pieces.shift();
-		var user = pieces[0];
+		var user;
+		if (pieces.length > 1) {
+			user = pieces[0];
+		} else {
+			user = '';
+		}
 
 		var userStorage = new this.Storage('users/' + this.sanitize(user));
 		var moduleStorage = new this.Storage('modules/' + moduleName);

@@ -68,3 +68,8 @@ Would be much better to use SQLite for this.
 Right now the bot exposes an empty web page. I would love it if each module could return a blob of HTML describing
 stats for users or other module-specific renderings, and then put those on the page. For instance, if someone
 implemented a ?meme bot, it would be fun to show the last _n_ memes.
+
+Subclass storage to go to something that's not ephemeral (it turns out the file system is ephemeral on Heroku, 
+which makes sense, so restarting the bot resets all your social stats). There's a free Postgres tier on Heroku
+which allows 10K rows which I think could maybe work for some combination of 10K modules + users. (if we're 
+willing to accept something ugly like glomming JSON into a column in a row)
