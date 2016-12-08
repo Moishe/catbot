@@ -1,0 +1,8 @@
+{
+	"DB": {
+	      "host": "localhost",
+	      "user": "god",
+	      "password": "",
+	      "database": "catbot"
+	      }
+}
