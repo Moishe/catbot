@@ -20,7 +20,7 @@ CatRunner.prototype.init = function(client, events, tok, rtm, store, cstore) {
 	this.RtmClient = client || require('@slack/client').RtmClient;
 	this.RTM_EVENTS = events || require('@slack/client').RTM_EVENTS;
 
-	this.token = tok || (process.env.SLACK_API_TOKEN || '');
+	this.token = (tok ||'');
 	this.rtm = new this.RtmClient(this.token, { logLevel: 'warning' });
 
 	this.sanitize = require("sanitize-filename");
@@ -53,6 +53,7 @@ CatRunner.prototype.init = function(client, events, tok, rtm, store, cstore) {
 	this.userRe = /<@[UW][A-Za-z0-9]+>/
 
 	console.log("initialized.");
+	this.regex = /^\?/;
 };
 
 CatRunner.prototype.start = function() {
@@ -60,8 +61,8 @@ CatRunner.prototype.start = function() {
 	this.rtm.start();
 
 	var self = this;
-	this.rtm.on(this.RTM_EVENTS.MESSAGE, function(m) { 
-		self.handleRtmMessage(m); 
+	this.rtm.on(this.RTM_EVENTS.MESSAGE, function(m) {
+		self.handleRtmMessage(m);
 	});
 	this.rtm.on(this.RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
 	  // TODO
@@ -75,13 +76,21 @@ CatRunner.prototype.start = function() {
 
 CatRunner.prototype.loader = function(moduleName) {
 	// don't throw if moduleName doesn't exist.
-	try { return require(moduleName); } catch (e) { console.log(e); };
-}
+	try { return require(moduleName); } catch (e) {};
+};
+
+CatRunner.prototype.shouldInvokeOn = function(message) {
+	return (message.type == 'message' && message.match(this.regex));
+};
+
+CatRunner.prototype.extractCommand = function(message) {
+};
 
 CatRunner.prototype.handleRtmMessage = function(message) {
-	if (message.type == 'message' && message.text[0] == '?') {
-		pieces = message.text.substring(1).split(' ');
-		moduleName = './modules/' + this.sanitize(pieces[0]) + '.js'
+	if (this.shouldInvokeOn(message)) {
+		var cleanMessage = message.text.replace(this.regex, '');
+		var pieces = cleanMessage.split(' ');
+		var moduleName = './modules/' + this.sanitize(pieces[0]) + '.js';
 		console.log("loading " + moduleName);
 
 		handler = this.loader(moduleName);
@@ -94,11 +103,13 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 
 		var clonedPieces = pieces.slice(0);
 
+		var result;
+
 		// protect ourselves from bad code/bugs in the handlers
 		// TODO: maybe only do this if "production" flag is on or something like that.
 		try {
-			self = this;
-			moduleStorageFactory = new this.storageFactory(this.connection, this.sanitize(moduleName));
+			var self = this;
+			var moduleStorageFactory = new this.storageFactory(this.connection, this.sanitize(moduleName));
 			result = handler.handle(clonedPieces, moduleStorageFactory,
 				function(result){
 					if (result) {
@@ -114,8 +125,10 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 		}
 
 		// unload the module so changes will be picked up without restarting the server
-		name = require.resolve(moduleName);
+		var name = require.resolve(moduleName);
 		delete require.cache[name];
+
+		return result; // is this the point of it Moishe?
 	}
 };
 
