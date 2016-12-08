@@ -15,12 +15,11 @@ function CatRunner() {
 	console.log("constructed.");
 };
 
-CatRunner.prototype.init = function(client, events, tok, rtm, store, cstore) {
+CatRunner.prototype.init = function(client, events, tok) {
 	console.log("initializing.");
-	this.RtmClient = client || require('@slack/client').RtmClient;
-	this.RTM_EVENTS = events || require('@slack/client').RTM_EVENTS;
-
-	this.token = (tok ||'');
+	this.RtmClient = client;
+	this.RTM_EVENTS = events;
+	this.token = tok;
 	this.rtm = new this.RtmClient(this.token, { logLevel: 'warning' });
 
 	this.sanitize = require("sanitize-filename");
@@ -29,7 +28,7 @@ CatRunner.prototype.init = function(client, events, tok, rtm, store, cstore) {
 	var mysql = require('mysql');
 
 	var dbConfig = config.get('DB');
-	this.connection = mysql.createConnection(config.get('DB'));
+	this.connection = mysql.createConnection(dbConfig);
 	this.connection.connect();
 
 	// Ensure tables exist.
@@ -50,7 +49,7 @@ CatRunner.prototype.init = function(client, events, tok, rtm, store, cstore) {
 	this.storageFactory = require("./storage_factory").StorageFactory;
 
 	this.channelRe = /#.*/;
-	this.userRe = /<@[UW][A-Za-z0-9]+>/
+	this.userRe = /<@[UW][A-Za-z0-9]+>/;
 
 	console.log("initialized.");
 	this.regex = /^\?/;
@@ -93,7 +92,7 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 		var moduleName = './modules/' + this.sanitize(pieces[0]) + '.js';
 		console.log("loading " + moduleName);
 
-		handler = this.loader(moduleName);
+		var handler = this.loader(moduleName);
 		if (!handler) {
 			console.log('no handler');
 			return;
@@ -110,7 +109,7 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 		try {
 			var self = this;
 			var moduleStorageFactory = new this.storageFactory(this.connection, this.sanitize(moduleName));
-			result = handler.handle(clonedPieces, moduleStorageFactory,
+			handler.handle(clonedPieces, moduleStorageFactory,
 				function(result){
 					if (result) {
 						if (result.message) {
@@ -121,7 +120,6 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 			});
 		} catch (e) {
 			console.log("Error in " + moduleName + ": " + e);
-			result = '';
 		}
 
 		// unload the module so changes will be picked up without restarting the server
