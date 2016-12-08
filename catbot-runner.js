@@ -36,7 +36,11 @@ CatRunner.prototype.start = function() {
 	this.rtm.start();
 
 	var self = this;
-	this.rtm.on(this.RTM_EVENTS.MESSAGE, function(m) { self.handleRtmMessage(m); });
+	this.rtm.on(this.RTM_EVENTS.MESSAGE, function(m) { 
+		console.log("handling message.");
+		self.handleRtmMessage(m); 
+		console.log("handled");
+	});
 	this.rtm.on(this.RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
 	  // TODO
 	});
