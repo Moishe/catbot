@@ -77,7 +77,7 @@ CatRunner.prototype.loader = function(moduleName) {
 };
 
 CatRunner.prototype.shouldInvokeOn = function(message) {
-	return (message.type == 'message' && message.match(this.regex));
+	return (message.type == 'message' && message.text.match(this.regex));
 };
 
 CatRunner.prototype.handleRtmMessage = function(message) {
