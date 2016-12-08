@@ -4,6 +4,6 @@
 			"user": "god",
 			"password": "",
 			"database": "catbot",
-			"socketPath": "/var/run/mysqld/mysqld.sock",
+			"socketPath": "/var/run/mysqld/mysqld.sock"
 	      }
 }
