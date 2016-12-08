@@ -1,4 +1,4 @@
-exports.handle = function(pieces, storageFactory, callback) {
+exports.handle = function(sender, pieces, storageFactory, callback) {
 	var user = pieces[0];
 	console.log("Giving another plus to " + user);
 
