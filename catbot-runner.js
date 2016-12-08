@@ -23,14 +23,29 @@ CatRunner.prototype.init = function(client, events, tok, rtm, store, cstore) {
 	this.token = tok || (process.env.SLACK_API_TOKEN || '');
 	this.rtm = new this.RtmClient(this.token, { logLevel: 'warning' });
 
-	var config	   = require('config');
-	var mysql      = require('mysql');
+	this.sanitize = require("sanitize-filename");
 
-	dbConfig = config.get('DB');
+	var config = require('config');
+	var mysql = require('mysql');
+
+	var dbConfig = config.get('DB');
 	this.connection = mysql.createConnection(config.get('DB'));
 	this.connection.connect();
 
-	this.sanitize = require("sanitize-filename");
+	// Ensure tables exist.
+	var sprintf = require('sprintf');
+	var create_query = 'CREATE TABLE IF NOT EXISTS %s (id VARCHAR(64) NOT NULL, data_key VARCHAR(64) NOT NULL, data_value VARCHAR(4096) NOT NULL, PRIMARY KEY(id, data_key)) ENGINE=InnoDB;';
+	this.connection.query(sprintf(create_query, 'user_data'), function(err, result){
+		console.log(result);
+	});
+
+	this.connection.query(sprintf(create_query, 'module_data'), function(err, result){
+		console.log(result);
+	});
+
+	this.connection.query(sprintf(create_query, 'global_data'), function(err, result){
+		console.log(result);
+	});
 
 	this.Storage = require("./storage").Storage;
 	console.log("initialized.");
