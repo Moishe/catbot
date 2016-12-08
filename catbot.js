@@ -10,6 +10,8 @@ const _ = require('lodash');
 
 var http_port = process.env.PORT || '8080';
 var bot_name = process.env.BOT_NAME ||'catbot';
+var slackToken = process.env.SLACK_API_TOKEN;
+var slackClient = require('@slack/client');
 
 var app = express();
 
@@ -35,6 +37,6 @@ app.listen(http_port, function(err) {
 
   var catbotRunner = new catbotModule.CatRunner();
 
-  catbotRunner.init();
+  catbotRunner.init(slackClient.RtmClient, slackClient.RTM_EVENTS, slackToken);
   catbotRunner.start();
 });
