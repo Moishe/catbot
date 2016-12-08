@@ -1,3 +1,3 @@
 exports.handle = function(pieces) { 
-	return pieces.join(" "); 
+	return {'message': pieces.join(" ")}; 
 }
