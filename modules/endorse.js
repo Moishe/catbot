@@ -1,4 +1,4 @@
-exports.handle = function(pieces, userStorage, moduleStorage, commonStorage) {
+exports.handle = function(sender, pieces, userStorage, moduleStorage, commonStorage) {
   var user = pieces.shift();
 
   // skip 'for' if first word of endorsement
