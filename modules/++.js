@@ -1,7 +1,8 @@
-exports.handle = function(pieces, userStorage, moduleStorage, commonStorage, callback) {
+exports.handle = function(pieces, storageFactory, callback) {
 	var user = pieces[0];
 	console.log("Giving another plus to " + user);
 
+	userStorage = storageFactory.getUserStorage(user);
 	userStorage.getItem('pluses', function(pluses){
 		if (!pluses) {
 			pluses = 0;

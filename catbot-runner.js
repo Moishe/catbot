@@ -36,18 +36,22 @@ CatRunner.prototype.init = function(client, events, tok, rtm, store, cstore) {
 	var sprintf = require('sprintf');
 	var create_query = 'CREATE TABLE IF NOT EXISTS %s (id VARCHAR(64) NOT NULL, data_key VARCHAR(64) NOT NULL, data_value VARCHAR(4096) NOT NULL, PRIMARY KEY(id, data_key)) ENGINE=InnoDB;';
 	this.connection.query(sprintf(create_query, 'user_data'), function(err, result){
-		console.log(result);
+		// TODO: error handling.
 	});
 
 	this.connection.query(sprintf(create_query, 'module_data'), function(err, result){
-		console.log(result);
+		// TODO: error handling.
 	});
 
 	this.connection.query(sprintf(create_query, 'global_data'), function(err, result){
-		console.log(result);
+		// TODO: error handling.
 	});
 
-	this.Storage = require("./storage").Storage;
+	this.storageFactory = require("./storage_factory").StorageFactory;
+
+	this.channelRe = /#.*/;
+	this.userRe = /<@[UW][A-Za-z0-9]+>/
+
 	console.log("initialized.");
 };
 
@@ -87,15 +91,6 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 		}
 
 		pieces.shift();
-		var user;
-		if (pieces.length >= 1) {
-			user = pieces[0];
-		} else {
-			user = '';
-		}
-
-		var userStorage = new this.Storage(this.connection, 'user_data', this.sanitize(user));
-		var moduleStorage = new this.Storage(this.connection, 'module_data', this.sanitize(moduleName));
 
 		var clonedPieces = pieces.slice(0);
 
@@ -103,13 +98,15 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 		// TODO: maybe only do this if "production" flag is on or something like that.
 		try {
 			self = this;
-			result = handler.handle(clonedPieces, userStorage, moduleStorage, this.commonStorage, function(result){
-				if (result) {
-					if (result.message) {
-						// TODO: allow bots to return attachments; use them here.
-						self.rtm.sendMessage(result.message, message.channel);
+			moduleStorageFactory = new this.storageFactory(this.connection, this.sanitize(moduleName));
+			result = handler.handle(clonedPieces, moduleStorageFactory,
+				function(result){
+					if (result) {
+						if (result.message) {
+							// TODO: allow bots to return attachments; use them here.
+							self.rtm.sendMessage(result.message, message.channel);
+						}
 					}
-				}
 			});
 		} catch (e) {
 			console.log("Error in " + moduleName + ": " + e);

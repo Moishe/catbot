@@ -9,7 +9,11 @@ function Storage(connection, table, id) {
 Storage.prototype.getItem = function(key, callback) {
 	var sql = "SELECT data_value FROM " + this.table + " WHERE id=? AND data_key=?";
 	this.connection.query(sql, [this.id, key], function(err, results){
-		callback(results[0]['data_value']);
+		if (results && results.length > 0){
+			callback(results[0]['data_value']);
+		}else{
+			callback(null);
+		}
 	});
 };
 
