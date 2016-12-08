@@ -80,9 +80,6 @@ CatRunner.prototype.shouldInvokeOn = function(message) {
 	return (message.type == 'message' && message.match(this.regex));
 };
 
-CatRunner.prototype.extractCommand = function(message) {
-};
-
 CatRunner.prototype.handleRtmMessage = function(message) {
 	if (this.shouldInvokeOn(message)) {
 		var cleanMessage = message.text.replace(this.regex, '');
