@@ -23,11 +23,16 @@ CatRunner.prototype.init = function(client, events, tok, rtm, store, cstore) {
 	this.token = tok || (process.env.SLACK_API_TOKEN || '');
 	this.rtm = new this.RtmClient(this.token, { logLevel: 'warning' });
 
-	this.Storage = require('./storage').Storage;
+	var config	   = require('config');
+	var mysql      = require('mysql');
 
-	this.commonStorage = new this.Storage('common');
+	dbConfig = config.get('DB');
+	this.connection = mysql.createConnection(config.get('DB'));
+	this.connection.connect();
 
 	this.sanitize = require("sanitize-filename");
+
+	this.Storage = require("./storage").Storage;
 	console.log("initialized.");
 };
 
@@ -51,13 +56,14 @@ CatRunner.prototype.start = function() {
 
 CatRunner.prototype.loader = function(moduleName) {
 	// don't throw if moduleName doesn't exist.
-	try { return require(moduleName); } catch (e) {};
+	try { return require(moduleName); } catch (e) { console.log(e); };
 }
 
 CatRunner.prototype.handleRtmMessage = function(message) {
 	if (message.type == 'message' && message.text[0] == '?') {
 		pieces = message.text.substring(1).split(' ');
 		moduleName = './modules/' + this.sanitize(pieces[0]) + '.js'
+		console.log("loading " + moduleName);
 
 		handler = this.loader(moduleName);
 		if (!handler) {
@@ -67,31 +73,32 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 
 		pieces.shift();
 		var user;
-		if (pieces.length > 1) {
+		if (pieces.length >= 1) {
 			user = pieces[0];
 		} else {
 			user = '';
 		}
 
-		var userStorage = new this.Storage('users/' + this.sanitize(user));
-		var moduleStorage = new this.Storage('modules/' + moduleName);
+		var userStorage = new this.Storage(this.connection, 'user_data', this.sanitize(user));
+		var moduleStorage = new this.Storage(this.connection, 'module_data', this.sanitize(moduleName));
 
 		var clonedPieces = pieces.slice(0);
 
 		// protect ourselves from bad code/bugs in the handlers
 		// TODO: maybe only do this if "production" flag is on or something like that.
 		try {
-			result = handler.handle(clonedPieces, userStorage, moduleStorage, this.commonStorage);
+			self = this;
+			result = handler.handle(clonedPieces, userStorage, moduleStorage, this.commonStorage, function(result){
+				if (result) {
+					if (result.message) {
+						// TODO: allow bots to return attachments; use them here.
+						self.rtm.sendMessage(result.message, message.channel);
+					}
+				}
+			});
 		} catch (e) {
 			console.log("Error in " + moduleName + ": " + e);
-		}
-
-		if (result) {
-			console.log(result);
-			if (result.message) {
-				// TODO: allow bots to return attachments; use them here.
-				this.rtm.sendMessage(result.message, message.channel);
-			}
+			result = '';
 		}
 
 		// unload the module so changes will be picked up without restarting the server

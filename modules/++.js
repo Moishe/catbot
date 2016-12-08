@@ -1,17 +1,20 @@
-exports.handle = function(pieces, userStorage, moduleStorage, commonStorage) {
+exports.handle = function(pieces, userStorage, moduleStorage, commonStorage, callback) {
 	var user = pieces[0];
 	console.log("Giving another plus to " + user);
 
-	var pluses = Number(userStorage.getItem('pluses'));
-	if (!pluses) {
-		pluses = 0;
-	}
+	userStorage.getItem('pluses', function(pluses){
+		if (!pluses) {
+			pluses = 0;
+		}
 
-	pluses += 1;
+		pluses = parseInt(pluses);
 
-	userStorage.setItem('pluses', pluses);
+		pluses += 1;
 
-	return {
-		'message': "One more plus for " + user + "! " + user + " now has " + pluses + " pluses!"
-	}
+		userStorage.setItem('pluses', pluses);
+
+		callback({
+			'message': "One more plus for " + user + "! " + user + " now has " + pluses + " pluses!"
+		});
+	});
 }
