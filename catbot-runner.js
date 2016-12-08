@@ -21,12 +21,10 @@ CatRunner.prototype.init = function(client, events, tok) {
 	this.RTM_EVENTS = events;
 	this.token = tok;
 	this.rtm = new this.RtmClient(this.token, { logLevel: 'warning' });
-
 	this.sanitize = require("sanitize-filename");
 
 	var config = require('config');
 	var mysql = require('mysql');
-
 	var dbConfig = config.get('DB');
 	this.connection = mysql.createConnection(dbConfig);
 	this.connection.connect();
@@ -75,7 +73,7 @@ CatRunner.prototype.start = function() {
 
 CatRunner.prototype.loader = function(moduleName) {
 	// don't throw if moduleName doesn't exist.
-	try { return require(moduleName); } catch (e) {};
+	try { return require(moduleName); } catch (e) {console.log(e); };
 };
 
 CatRunner.prototype.shouldInvokeOn = function(message) {
@@ -99,10 +97,6 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 		}
 
 		pieces.shift();
-
-		var clonedPieces = pieces.slice(0);
-
-		var result;
 
 		// protect ourselves from bad code/bugs in the handlers
 		// TODO: maybe only do this if "production" flag is on or something like that.
