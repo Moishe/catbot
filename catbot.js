@@ -3,12 +3,15 @@ const catbotModule = require('./catbot-runner');
 // For now we have a simple app that doesn't do anything but listen
 // and serve a dummy webpage
 
-const express = require('express')
-const proxy = require('express-http-proxy')
-const bodyParser = require('body-parser')
-const _ = require('lodash')
+const express = require('express');
+const proxy = require('express-http-proxy');
+const bodyParser = require('body-parser');
+const _ = require('lodash');
 
-var app = express()
+var http_port = process.env.PORT || '8080';
+var bot_name = process.env.BOT_NAME ||'catbot';
+
+var app = express();
 
 if (process.env.PROXY_URI) {
   app.use(process.env.PROXY_URI), {
@@ -16,19 +19,22 @@ if (process.env.PROXY_URI) {
   }
 }
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get('/', function(req, res) { res.send('\n 😻😻 catbot! 😻😻 \n') });
+app.get('/', function(req, res) { res.send('\n 😻😻 ' + bot_name + ' 😻😻 \n') });
 app.use(express.static(__dirname + '/assets'));
 
-app.listen(process.env.PORT, function(err) {
-  if (err) throw err
 
-  console.log('Listening on ' + process.env.PORT);
+app.listen(http_port, function(err) {
+  if (err) {
+    throw err;
+  }
 
-  catbotRunner = new catbotModule.CatRunner();
+  console.log('Listening on ' + http_port);
+
+  var catbotRunner = new catbotModule.CatRunner();
 
   catbotRunner.init();
   catbotRunner.start();
-})
+});
