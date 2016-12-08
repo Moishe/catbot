@@ -119,8 +119,6 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 		// unload the module so changes will be picked up without restarting the server
 		var name = require.resolve(moduleName);
 		delete require.cache[name];
-
-		return result; // is this the point of it Moishe?
 	}
 };
 
