@@ -24,7 +24,6 @@ CatRunner.prototype.init = function(client, events, tok) {
 	this.sanitize = require("sanitize-filename");
 
 	var config = require('config');
-	console.log('NODE_CONFIG: ' + config.util.getEnv('NODE_CONFIG'));
 	var mysql = require('mysql');
 	var dbConfig = config.get('DB');
 	this.connection = mysql.createConnection(dbConfig);
@@ -35,18 +34,24 @@ CatRunner.prototype.init = function(client, events, tok) {
 	var create_query = 'CREATE TABLE IF NOT EXISTS %s (id VARCHAR(64) NOT NULL, data_key VARCHAR(64) NOT NULL, data_value VARCHAR(4096) NOT NULL, PRIMARY KEY(id, data_key)) ENGINE=InnoDB;';
 
 	this.connection.query(sprintf(create_query, 'user_data'), function(err, result){
-		console.log("Error on user data query " + err + " result:");
-		console.dir(result);
+		if (err) {
+			console.log("Error on user data query " + err + " result:");
+			console.dir(result);
+		}
 	});
 
 	this.connection.query(sprintf(create_query, 'module_data'), function(err, result){
-		console.log("Error on module data query " + err + " result:");
-		console.dir(result);
+		if (err) {
+			console.log("Error on module data query " + err + " result:");
+			console.dir(result);
+		}
 	});
 
 	this.connection.query(sprintf(create_query, 'global_data'), function(err, result){
-		console.log("Error on module global query " + err + " result:");
-		console.dir(result);
+		if (err) {
+			console.log("Error on module global query " + err + " result:");
+			console.dir(result);
+		}
 	});
 
 	this.storageFactory = require("./storage_factory").StorageFactory;
