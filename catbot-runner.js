@@ -26,7 +26,7 @@ CatRunner.prototype.init = function(client, events, tok) {
 	var config = require('config');
 	var mysql = require('mysql');
 	var dbConfig = config.get('DB');
-	this.connection = mysql.createConnection(dbConfig);
+	this.connection = mysql.createConnection(process.env.CLEARDB_DATABASE_URL);
 	this.connection.connect();
 
 	// Ensure tables exist.
