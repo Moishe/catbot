@@ -11,11 +11,11 @@ exports.handle = function(sender, pieces, storageFactory, callback, moduleName) 
 	storage.getItem(item, function(learnings){
 	    learnings = JSON.parse(learnings || '{}');
 
-    	if (!Object.keys(learnings).length){
-    		callback({'message': "Alas, I know nothing about " + item + ". You should teach me with ?learn"});
-    	}else{
-    		// TODO: include teachers in the learnings (the values in the array are arrays of teachers)
-    		callback({'message': "Here's what I know about " + item + "\n  - " + Object.keys(learnings).join("\n  - ")});
-    	}
+		if (!Object.keys(learnings).length){
+			callback({'message': "Alas, I know nothing about " + item + ". You should teach me with ?learn"});
+		}else{
+			// TODO: include teachers in the learnings (the value in the array is the teachers)
+			callback({'message': "Here's what I know about " + item + "\n  - " + Object.keys(learnings).join("\n  - ")});
+		}
 	});
 }

@@ -15,13 +15,13 @@ exports.handle = function(sender, pieces, storageFactory, callback, moduleName) 
 	storage.getItem(moduleName, function(learnings){
 	    learnings = JSON.parse(learnings || '{}');
 
-    	if (Object.keys(learnings).length === 0) {
-    		callback({'message': "I don't know what you're talking about. Teach me with ?learn or write a module!"});
-    	}else{
-    		var things = Object.keys(learnings);
-    		var idx = getRandomInt(0, things.length - 1);
+		if (Object.keys(learnings).length === 0) {
+			callback({'message': "I don't know what you're talking about. Teach me with ?learn or write a module!"});
+		}else{
+			var things = Object.keys(learnings);
+			var idx = getRandomInt(0, things.length - 1);
 
-    		callback({'message': things[idx]});
-    	}
+			callback({'message': things[idx]});
+		}
 	});
 };
