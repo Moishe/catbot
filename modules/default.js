@@ -20,11 +20,8 @@ exports.handle = function(sender, pieces, storageFactory, callback, moduleName) 
     	if (Object.keys(learnings).length == 0) {
     		callback({'message': "I don't know what you're talking about. Teach me with ?learn or write a module!"});
     	}else{
-    		console.log(learnings);
     		var things = Object.keys(learnings);
-    		console.log(things);
     		var idx = getRandomInt(0, things.length - 1);
-    		console.log(idx);
 
     		callback({'message': things[idx] + " (<@" + learnings[things[idx]] + ">)"});
     	}
