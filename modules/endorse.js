@@ -1,4 +1,4 @@
-exports.handle = function(pieces, userStorage, moduleStorage, commonStorage) {
+exports.handle = function(sender, pieces, storageFactory, callback) {
   var user = pieces.shift();
 
   // skip 'for' if first word of endorsement
@@ -10,6 +10,7 @@ exports.handle = function(pieces, userStorage, moduleStorage, commonStorage) {
 
   console.log('Endorsing ' + user + ' for ' + endorsement);
 
+  var userStorage = storageFactory.getUserStorage(user);
   var endorsements = JSON.parse(userStorage.getItem('endorsements') || '{}');
 
   if (endorsements[endorsement]) {
@@ -20,7 +21,7 @@ exports.handle = function(pieces, userStorage, moduleStorage, commonStorage) {
 
   userStorage.setItem('endorsements', JSON.stringify(endorsements));
 
-  return {
+  callback({
     'message': user + ' has been endorsed for ' + endorsement
-  }
+  });
 }
