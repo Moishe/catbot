@@ -28,7 +28,11 @@ CatRunner.prototype.init = function(client, events, tok) {
 	var config = require('config');
 	var mysql = require('mysql');
 	var dbConfig = config.get('DB');
-	this.connection = mysql.createConnection(dbConfig);
+	if (dbConfig.useJawsURL){
+		this.connection = mysql.createConnection(process.env.JAWSDB_URL);
+	}else{
+		this.connection = mysql.createConnection(dbConfig);		
+	}
 	this.connection.connect();
 
 	// Ensure tables exist.
