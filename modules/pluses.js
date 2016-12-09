@@ -7,13 +7,15 @@ exports.handle = function(sender, pieces, storageFactory, callback) {
 		userString = "<@" + sender + ">";
 	}
 
-	userStorage.getItem('pluses', function(pluses){
+	var message = null;
+	var userStorage.getItem('pluses', function(pluses){
 		if (!pluses){
 			message = "Alas, " + userString + " has no pluses. You should give them some!";
 		}else{
 			message = userString + " has " + pluses + " pluses!";
 		}
 
-		callback({'message': message});
 	});
+
+	callback({'message': message});
 }
