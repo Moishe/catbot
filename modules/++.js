@@ -2,7 +2,7 @@ exports.handle = function(sender, pieces, storageFactory, callback) {
 	var user = pieces[0];
 	console.log("Giving another plus to " + user);
 
-	m = user.match(/<@([UW][A-Z0-9]+)/)
+	var m = user.match(/<@([UW][A-Z0-9]+)/)
 	if (m){
 		user = m[1];
 	}
@@ -12,7 +12,7 @@ exports.handle = function(sender, pieces, storageFactory, callback) {
 		return;
 	}
 
-	userStorage = storageFactory.getUserStorage(user);
+	var userStorage = storageFactory.getUserStorage(user);
 	userStorage.getItem('pluses', function(pluses){
 		if (!pluses) {
 			pluses = 0;

@@ -1,4 +1,4 @@
-exports.handle = function(sender, pieces, userStorage, moduleStorage, commonStorage) {
+exports.handle = function(sender, pieces, storageFactory, callback) {
   var user = pieces.shift();
 
   var endorsements = JSON.parse(userStorage.getItem('endorsements') || '{}');
@@ -20,7 +20,7 @@ exports.handle = function(sender, pieces, userStorage, moduleStorage, commonStor
     message = '*' + user + '* has no endorsements! You should endorse them for something!';
   }
 
-  return {
+  callback({
     'message': message
-  }
+  });
 }
