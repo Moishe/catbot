@@ -97,11 +97,20 @@ CatRunner.prototype.loader = function(moduleName) {
 CatRunner.prototype.shouldInvokeOn = function(message) {
 	console.log("message received is: ");
 	console.dir(message);
-	return (message.type == 'message' && message.text.match(this.regex));
+	if (message.type == 'message'){
+		if (message.message){
+			message = message.message;
+		}
+	}
+
+	if (message.text && message.text.match(this.regex)){
+		return message;
+	}
 };
 
 CatRunner.prototype.handleRtmMessage = function(message) {
-	if (this.shouldInvokeOn(message)) {
+	message = this.shouldInvokeOn(message);
+	if (message) {
 		var cleanMessage = message.text.replace(this.regex, '');
 		var pieces = cleanMessage.split(' ');
 		var moduleName = './modules/' + this.sanitize(pieces[0]) + '.js';
@@ -115,12 +124,18 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 
 		pieces.shift();
 
+		if (message.attachments){
+			console.log("Attachment is: ");
+			console.dir(message.attachments.first);
+
+		}
+
 		// protect ourselves from bad code/bugs in the handlers
 		// TODO: maybe only do this if "production" flag is on or something like that.
 		try {
 			var self = this;
 			var moduleStorageFactory = new this.storageFactory(this.connection, this.sanitize(moduleName));
-			handler.handle(message['user'], pieces.slice(0), moduleStorageFactory,
+			handler.handle(message.user, pieces.slice(0), moduleStorageFactory,
 				function(result){
 					if (result) {
 						if (result.message) {
