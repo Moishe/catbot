@@ -24,6 +24,10 @@ exports.handle = function(sender, pieces, storageFactory, callback) {
 
 		userStorage.setItem('pluses', pluses);
 
+		if (user.match(/[UW][0-9A-Z]+/)){
+			user = '<@' + user + '>';
+		}
+
 		callback({
 			'message': "One more plus for " + user + "! " + user + " now has " + pluses + " pluses!"
 		});
