@@ -13,7 +13,7 @@ function StorageFactory(connection, module, sender){
 StorageFactory.prototype.getUserStorage = function(user){
 	console.log("getting storage for " + user);
 	// We want to be kind of nice here, so we strip out the <@...> piece if this is a mention
-	m = user.match(/<@([UW][A-Z0-9]+)/)
+	m = user.match(/\<@([UW][A-Z0-9]+)/)
 	if (m){
 		user = m[1];
 		console.log('match: ' + user);

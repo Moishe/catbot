@@ -1,3 +1,5 @@
+var sprintf = require('sprintf');
+
 function CatRunner() {
 	console.log("constructing.");
 
@@ -23,7 +25,16 @@ CatRunner.prototype.init = function(client, events, tok) {
 	this.rtm = new this.RtmClient(this.token, { logLevel: 'warning' });
 	this.sanitize = require("sanitize-filename");
 
+	this.initDB();
+	this.storageFactory = require("./storage_factory").StorageFactory;
+	this.channelRe = /#.*/;
+	this.userRe = /<@[UW][A-Za-z0-9]+>/;
 
+	console.log("initialized.");
+	this.regex = /^\?/;
+};
+
+CatRunner.prototype.initDB = function() {
 	var mysql = require('mysql');
 	var dbConfig;
 
@@ -37,38 +48,20 @@ CatRunner.prototype.init = function(client, events, tok) {
 	this.connection = mysql.createConnection(dbConfig);
 
 	// Ensure tables exist.
-	var sprintf = require('sprintf');
-	var create_query = 'CREATE TABLE IF NOT EXISTS %s (id VARCHAR(64) NOT NULL, data_key VARCHAR(64) NOT NULL, data_value VARCHAR(4096) NOT NULL, PRIMARY KEY(id, data_key)) ENGINE=InnoDB;';
+	var create_query = 'CREATE TABLE IF NOT EXISTS %s (id VARCHAR(64) NOT NULL, data_key VARCHAR(64) NOT NULL, ' +
+		'data_value VARCHAR(4096) NOT NULL, PRIMARY KEY(id, data_key)) ENGINE=InnoDB;';
 
 	this.connection.query(sprintf(create_query, 'user_data'), function(err, result){
-		if (err) {
-			console.log("Error on user data query " + err + " result:");
-			console.dir(result);
-		}
+		if (err) console.log("Error on user data query: " + err);
 	});
 
 	this.connection.query(sprintf(create_query, 'module_data'), function(err, result){
-		if (err) {
-			console.log("Error on module data query " + err + " result:");
-			console.dir(result);
-		}
+		if (err) console.log("Error on module data query: " + err );
 	});
 
 	this.connection.query(sprintf(create_query, 'global_data'), function(err, result){
-		if (err) {
-			console.log("Error on module global query " + err + " result:");
-			console.dir(result);
-		}
+		if (err) console.log("Error on module global query: " + err);
 	});
-
-
-	this.storageFactory = require("./storage_factory").StorageFactory;
-
-	this.channelRe = /#.*/;
-	this.userRe = /<@[UW][A-Za-z0-9]+>/;
-
-	console.log("initialized.");
-	this.regex = /^\?/;
 };
 
 CatRunner.prototype.start = function() {
