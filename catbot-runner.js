@@ -15,7 +15,7 @@ function CatRunner() {
 	this.DEFAULT_MODULE_NAME = 'default';
 
 	console.log("constructed.");
-};
+}
 
 CatRunner.prototype.init = function(client, events, tok) {
 	console.log("initializing.");
