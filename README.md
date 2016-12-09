@@ -45,7 +45,7 @@ Tutorial with Heroku
 * Create a NodeJS app in Heroku
 * Connect your new Heroku app to your github repo which has fork of the catbot
 * Select automatic deploy on commit
-* In Settings, set `BOT_NAME` and `SLACK_API_TOKEN`
+* In Settings, set `BOT_NAME` and `SLACK_API_TOKEN`, `DATABASE_URL`
 * Make your code changes and commit to your github repo
 * Changes will be auto deployed !
 
