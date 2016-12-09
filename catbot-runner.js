@@ -115,7 +115,7 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 		try {
 			var self = this;
 			var moduleStorageFactory = new this.storageFactory(this.connection, this.sanitize(moduleName));
-			handler.handle(message['user'], pieces.slice(0), moduleStorageFactory,
+			handler.handle(message.user, pieces.slice(0), moduleStorageFactory,
 				function(result){
 					if (result) {
 						if (result.message) {

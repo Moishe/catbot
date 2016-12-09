@@ -17,10 +17,22 @@ Storage.prototype.getItem = function(key, callback) {
 	});
 };
 
+Storage.prototype.getAllItemsByKey = function(key, callback) {
+	var sql = "SELECT id, data_value FROM " + this.table + " WHERE data_key= ?";
+	this.connection.query(sql, [key], function(err, results){
+		if (results && results.length > 0){
+			var data_values = results.map(function(e){ return {'id': e.id, 'data_value': e.data_value}});
+			callback(data_values);
+		}else{
+			callback(null);
+		}
+	});
+};
+
 Storage.prototype.setItem = function(key, value) {
 	var sql = "INSERT INTO " + this.table + "(id,data_key,data_value) VALUES (?,?,?) ON DUPLICATE KEY UPDATE data_value=?";
 	this.connection.query(sql, [this.id, key, value, value]);
-}
+};
 
 exports.Storage = Storage;
 
