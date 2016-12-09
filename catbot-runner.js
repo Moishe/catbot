@@ -12,6 +12,8 @@ function CatRunner() {
 	this.userStorage = undefined;
 	this.moduleStorage = undefined;
 
+	this.DEFAULT_MODULE_NAME = 'default';
+
 	console.log("constructed.");
 };
 
@@ -31,7 +33,7 @@ CatRunner.prototype.init = function(client, events, tok) {
 
 	// Ensure tables exist.
 	var sprintf = require('sprintf');
-	var create_query = 'CREATE TABLE IF NOT EXISTS %s (id VARCHAR(64) NOT NULL, data_key VARCHAR(64) NOT NULL, data_value VARCHAR(4096) NOT NULL, PRIMARY KEY(id, data_key)) ENGINE=InnoDB;';
+	var create_query = 'CREATE TABLE IF NOT EXISTS %s (id VARCHAR(64) NOT NULL, data_key VARCHAR(64) NOT NULL, data_value VARCHAR(32767) NOT NULL, PRIMARY KEY(id, data_key)) ENGINE=InnoDB;';
 	this.connection.query(sprintf(create_query, 'user_data'), function(err, result){
 		// TODO: error handling.
 	});
@@ -84,11 +86,20 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 	if (this.shouldInvokeOn(message)) {
 		var cleanMessage = message.text.replace(this.regex, '');
 		var pieces = cleanMessage.split(' ');
-		var moduleName = './modules/' + this.sanitize(pieces[0]) + '.js';
+		var bareModule = this.sanitize(pieces[0]);
+		var moduleName = './modules/' +  bareModule + '.js';
+
 		console.log("loading " + moduleName);
 
 		var handler = this.loader(moduleName);
 		if (!handler) {
+			// if we didn't find a handler, try the default handler.
+			console.log("loading default handler");
+			moduleName = './modules/' + this.DEFAULT_MODULE_NAME + '.js';
+			handler = this.loader(moduleName);
+		}
+
+		if (!handler){
 			console.log('no handler');
 			return;
 		}
@@ -100,6 +111,7 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 		try {
 			var self = this;
 			var moduleStorageFactory = new this.storageFactory(this.connection, this.sanitize(moduleName));
+			console.log("calling handler " + JSON.stringify(handler.handle));
 			handler.handle(message['user'], pieces.slice(0), moduleStorageFactory,
 				function(result){
 					if (result) {
@@ -108,9 +120,9 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 							self.rtm.sendMessage(result.message, message.channel);
 						}
 					}
-			});
+			}, bareModule);
 		} catch (e) {
-			console.log("Error in " + moduleName + ": " + e);
+			console.log("Error while executing " + moduleName + ": " + e);
 		}
 
 		// unload the module so changes will be picked up without restarting the server
