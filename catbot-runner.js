@@ -1,3 +1,5 @@
+var sprintf = require('sprintf');
+
 function CatRunner() {
 	console.log("constructing.");
 
@@ -23,34 +25,43 @@ CatRunner.prototype.init = function(client, events, tok) {
 	this.rtm = new this.RtmClient(this.token, { logLevel: 'warning' });
 	this.sanitize = require("sanitize-filename");
 
-	var config = require('config');
-	var mysql = require('mysql');
-	var dbConfig = config.get('DB');
-	this.connection = mysql.createConnection(dbConfig);
-	this.connection.connect();
-
-	// Ensure tables exist.
-	var sprintf = require('sprintf');
-	var create_query = 'CREATE TABLE IF NOT EXISTS %s (id VARCHAR(64) NOT NULL, data_key VARCHAR(64) NOT NULL, data_value VARCHAR(4096) NOT NULL, PRIMARY KEY(id, data_key)) ENGINE=InnoDB;';
-	this.connection.query(sprintf(create_query, 'user_data'), function(err, result){
-		// TODO: error handling.
-	});
-
-	this.connection.query(sprintf(create_query, 'module_data'), function(err, result){
-		// TODO: error handling.
-	});
-
-	this.connection.query(sprintf(create_query, 'global_data'), function(err, result){
-		// TODO: error handling.
-	});
-
+	this.initDB();
 	this.storageFactory = require("./storage_factory").StorageFactory;
-
 	this.channelRe = /#.*/;
 	this.userRe = /<@[UW][A-Za-z0-9]+>/;
 
 	console.log("initialized.");
 	this.regex = /^\?/;
+};
+
+CatRunner.prototype.initDB = function() {
+	var mysql = require('mysql');
+	var dbConfig;
+
+	if (process.env.DATABASE_URL) {
+		dbConfig = process.env.DATABASE_URL;
+
+	} else {
+		var config = require('config');
+		dbConfig = config.get('DB');
+	}
+	this.connection = mysql.createConnection(dbConfig);
+
+	// Ensure tables exist.
+	var create_query = 'CREATE TABLE IF NOT EXISTS %s (id VARCHAR(64) NOT NULL, data_key VARCHAR(64) NOT NULL, ' +
+		'data_value VARCHAR(4096) NOT NULL, PRIMARY KEY(id, data_key)) ENGINE=InnoDB;';
+
+	this.connection.query(sprintf(create_query, 'user_data'), function(err, result){
+		if (err) console.log("Error on user data query: " + err);
+	});
+
+	this.connection.query(sprintf(create_query, 'module_data'), function(err, result){
+		if (err) console.log("Error on module data query: " + err );
+	});
+
+	this.connection.query(sprintf(create_query, 'global_data'), function(err, result){
+		if (err) console.log("Error on module global query: " + err);
+	});
 };
 
 CatRunner.prototype.start = function() {
@@ -77,11 +88,22 @@ CatRunner.prototype.loader = function(moduleName) {
 };
 
 CatRunner.prototype.shouldInvokeOn = function(message) {
-	return (message.type == 'message' && message.text.match(this.regex));
+	console.log("message received is: ");
+	console.dir(message);
+	if (message.type == 'message'){
+		if (message.message){
+			message = message.message;
+		}
+	}
+
+	if (message.text && message.text.match(this.regex)){
+		return message;
+	}
 };
 
 CatRunner.prototype.handleRtmMessage = function(message) {
-	if (this.shouldInvokeOn(message)) {
+	message = this.shouldInvokeOn(message);
+	if (message) {
 		var cleanMessage = message.text.replace(this.regex, '');
 		var pieces = cleanMessage.split(' ');
 		var moduleName = './modules/' + this.sanitize(pieces[0]) + '.js';
@@ -95,12 +117,18 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 
 		pieces.shift();
 
+		if (message.attachments){
+			console.log("Attachment is: ");
+			console.dir(message.attachments.first);
+
+		}
+
 		// protect ourselves from bad code/bugs in the handlers
 		// TODO: maybe only do this if "production" flag is on or something like that.
 		try {
 			var self = this;
 			var moduleStorageFactory = new this.storageFactory(this.connection, this.sanitize(moduleName));
-			handler.handle(message['user'], pieces.slice(0), moduleStorageFactory,
+			handler.handle(message.user, pieces.slice(0), moduleStorageFactory,
 				function(result){
 					if (result) {
 						if (result.message) {

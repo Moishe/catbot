@@ -3,7 +3,6 @@
 			"host": "localhost",
 			"user": "god",
 			"password": "",
-			"database": "catbot",
-			"socketPath": "/var/run/mysqld/mysqld.sock"
+			"database": "catbot"
 	      }
 }
