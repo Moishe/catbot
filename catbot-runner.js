@@ -35,7 +35,6 @@ CatRunner.prototype.init = function(client, events, tok) {
 		dbConfig = config.get('DB');
 	}
 	this.connection = mysql.createConnection(dbConfig);
-	this.connection.connect();
 
 	// Ensure tables exist.
 	var sprintf = require('sprintf');
@@ -61,6 +60,7 @@ CatRunner.prototype.init = function(client, events, tok) {
 			console.dir(result);
 		}
 	});
+
 
 	this.storageFactory = require("./storage_factory").StorageFactory;
 

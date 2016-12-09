@@ -27,7 +27,7 @@ StorageFactory.prototype.getModuleStorage = function(){
 };
 
 StorageFactory.prototype.getGlobalStorage = function(key){
-	return new this.Storage(this.connection, this.GLOBL_TYPE, key);
+	return new this.Storage(this.connection, this.GLOBAL_TYPE, key);
 };
 
 exports.StorageFactory = StorageFactory;
