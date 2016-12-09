@@ -9,12 +9,12 @@ The bot framework is triggered by a message whose first character is a "?"
 
 When the framework hears a message like this, it treats it as a command in the following format:
 
-```?module-name target-user arg1 arg2 ...```
+```?module-name arg1 arg2 ...```
 
 The framework will attempt to load the module identified by the module-name param. If it exists,
-the framework will pass the `target-user` and `args` as one array (user is the first element), as well as
-storage objects specific to the user, specific to the module and common across all modules, to the
-module's `handle` function.
+the framework will pass the `args` as one array (user is the first element), as well as a storage
+factory that the module can use to request storage objects for users (which might be the sender or
+identified by args), a storage object for the module, or a global storage object.
 
 Quick Start
 ---
@@ -73,9 +73,5 @@ Would be much better to use SQLite for this.
 
 Right now the bot exposes an empty web page. I would love it if each module could return a blob of HTML describing
 stats for users or other module-specific renderings, and then put those on the page. For instance, if someone
-implemented a ?meme bot, it would be fun to show the last _n_ memes.
+implemented a ?meme bot, it would be fun to show the last _n_ memes. Similarly, the ++ bot could expose a "pluses leaderboard".
 
-Subclass storage to go to something that's not ephemeral (it turns out the file system is ephemeral on Heroku, 
-which makes sense, so restarting the bot resets all your social stats). There's a free Postgres tier on Heroku
-which allows 10K rows which I think could maybe work for some combination of 10K modules + users. (if we're 
-willing to accept something ugly like glomming JSON into a column in a row)
