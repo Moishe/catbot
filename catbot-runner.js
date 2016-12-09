@@ -95,7 +95,8 @@ CatRunner.prototype.loader = function(moduleName) {
 };
 
 CatRunner.prototype.shouldInvokeOn = function(message) {
-	console.log("message received is: " + message.text);
+	console.log("message received is: ");
+	console.dir(message);
 	return (message.type == 'message' && message.text.match(this.regex));
 };
 
