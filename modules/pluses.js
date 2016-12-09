@@ -1,4 +1,6 @@
 exports.handle = function(sender, pieces, storageFactory, callback) {
+	var userStorage, userString;
+
 	if (pieces.length){
 		userStorage = storageFactory.getUserStorage(pieces[0]);
 		userString = pieces[0];

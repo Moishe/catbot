@@ -1,27 +1,31 @@
-exports.handle = function(sender, pieces, storageFactory, callback) {
-  var user = pieces.shift();
+exports.handle = function (sender, pieces, storageFactory, callback) {
+    var user = pieces.shift();
 
-  // skip 'for' if first word of endorsement
-  if (pieces[0] == 'for') {
-    pieces.shift();
-  }
+    // skip 'for' if first word of endorsement
+    if (pieces[0] == 'for') {
+        pieces.shift();
+    }
 
-  var endorsement = pieces.join(' ');
+    var endorsement = pieces.join(' ');
 
-  console.log('Endorsing ' + user + ' for ' + endorsement);
+    console.log('Endorsing ' + user + ' for ' + endorsement);
 
-  var userStorage = storageFactory.getUserStorage(user);
-  var endorsements = JSON.parse(userStorage.getItem('endorsements') || '{}');
+    var userStorage = storageFactory.getUserStorage(user);
 
-  if (endorsements[endorsement]) {
-    endorsements[endorsement] += 1;
-  } else {
-    endorsements[endorsement] = 1;    
-  }
+    userStorage.getItem('endorsements', function (data) {
+        var endorsements = JSON.parse(data || '{}');
 
-  userStorage.setItem('endorsements', JSON.stringify(endorsements));
+        if (endorsements[endorsement]) {
+            endorsements[endorsement] += 1;
+        } else {
+            endorsements[endorsement] = 1;
+        }
 
-  callback({
-    'message': user + ' has been endorsed for ' + endorsement
-  });
+        userStorage.setItem('endorsements', JSON.stringify(endorsements));
+
+        callback({
+            'message': user + ' has been endorsed for ' + endorsement
+        });
+    });
+
 }

@@ -12,6 +12,7 @@ Storage.prototype.getItem = function(key, callback) {
 		if (results && results.length > 0){
 			callback(results[0]['data_value']);
 		}else{
+			console.log("Error getting results")
 			callback(null);
 		}
 	});
