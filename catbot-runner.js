@@ -100,7 +100,7 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 		try {
 			self = this;
 			moduleStorageFactory = new this.storageFactory(this.connection, this.sanitize(moduleName));
-			result = handler.handle(message['user'], clonedPieces, moduleStorageFactory,
+			result = handler.handle(message['user'], pieces.slice(0), moduleStorageFactory,
 				function(result){
 					if (result) {
 						if (result.message) {
