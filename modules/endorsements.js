@@ -2,10 +2,8 @@ exports.handle = function(sender, pieces, storageFactory, callback) {
   var user = pieces.shift();
 
   var userStorage = storageFactory.getUserStorage(user);
-
-  userStorage.getItem('endorsements', function(data){
-    var endorsements = JSON.parse(data || '{}');
-
+  userStorage.getItem('endorsements', function(endorsements){
+    endorsements = JSON.parse(endorsements || '{}'); 
     var annotatedEndorsements = [];
 
     for (var endorsement in endorsements) {
@@ -25,7 +23,6 @@ exports.handle = function(sender, pieces, storageFactory, callback) {
 
     callback({
       'message': message
-    });
+    });    
   });
-
 }

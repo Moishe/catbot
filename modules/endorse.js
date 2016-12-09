@@ -11,9 +11,8 @@ exports.handle = function (sender, pieces, storageFactory, callback) {
     console.log('Endorsing ' + user + ' for ' + endorsement);
 
     var userStorage = storageFactory.getUserStorage(user);
-
-    userStorage.getItem('endorsements', function (data) {
-        var endorsements = JSON.parse(data || '{}');
+    userStorage.getItem('endorsements', function(endorsements){
+        endorsements = JSON.parse(endorsements || '{}');
 
         if (endorsements[endorsement]) {
             endorsements[endorsement] += 1;
@@ -27,5 +26,4 @@ exports.handle = function (sender, pieces, storageFactory, callback) {
             'message': user + ' has been endorsed for ' + endorsement
         });
     });
-
 }
