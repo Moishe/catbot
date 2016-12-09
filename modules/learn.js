@@ -1,15 +1,16 @@
 exports.handle = function(sender, pieces, storageFactory, callback, moduleName) {
-	if (!pieces[0]){
+	item = pieces[0];
+	fact = pieces.slice(1).join(' ');
+
+	if (!item || !fact || item.length == 0 || fact.length == 0){
 		callback({'message': "Sorry, I can't learn nothing!"});
 		return;
 	}
 	// write the thing to the global table
 	storage = storageFactory.getGlobalStorage('learnings');
-	item = pieces[0];
-	fact = pieces.slice(1).join(' ');
 
 	if (fact[0] == '<' && fact[fact.length - 1] == '>'){
-		fact = fact.substr(1, fact.length - 1);
+		fact = fact.substr(1, fact.length - 2);
 	}
 
 	storage.getItem(item, function(learnings){

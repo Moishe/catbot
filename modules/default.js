@@ -12,8 +12,6 @@ exports.handle = function(sender, pieces, storageFactory, callback, moduleName) 
 	var item = pieces[0];
 	var fact = pieces.slice(1).join(' ');
 
-	console.log("looking for things about " + moduleName);
-
 	storage.getItem(moduleName, function(learnings){
 	    learnings = JSON.parse(learnings || '{}');
 
@@ -23,7 +21,7 @@ exports.handle = function(sender, pieces, storageFactory, callback, moduleName) 
     		var things = Object.keys(learnings);
     		var idx = getRandomInt(0, things.length - 1);
 
-    		callback({'message': things[idx] + " (<@" + learnings[things[idx]] + ">)"});
+    		callback({'message': things[idx]});
     	}
 	});
 };
