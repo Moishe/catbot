@@ -11,17 +11,19 @@ exports.handle = function(sender, pieces, storageFactory, callback) {
   console.log('Endorsing ' + user + ' for ' + endorsement);
 
   var userStorage = storageFactory.getUserStorage(user);
-  var endorsements = JSON.parse(userStorage.getItem('endorsements') || '{}');
+  userStorage.getItem('endorsements', function(endorsements){
+    endorsements = JSON.parse(endorsements || '{}');
 
-  if (endorsements[endorsement]) {
-    endorsements[endorsement] += 1;
-  } else {
-    endorsements[endorsement] = 1;    
-  }
+    if (endorsements[endorsement]) {
+      endorsements[endorsement] += 1;
+    } else {
+      endorsements[endorsement] = 1;    
+    }
 
-  userStorage.setItem('endorsements', JSON.stringify(endorsements));
+    userStorage.setItem('endorsements', JSON.stringify(endorsements));
 
-  callback({
-    'message': user + ' has been endorsed for ' + endorsement
+    callback({
+      'message': user + ' has been endorsed for ' + endorsement
+    });
   });
 }

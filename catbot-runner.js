@@ -98,9 +98,9 @@ CatRunner.prototype.handleRtmMessage = function(message) {
 		// protect ourselves from bad code/bugs in the handlers
 		// TODO: maybe only do this if "production" flag is on or something like that.
 		try {
-			self = this;
-			moduleStorageFactory = new this.storageFactory(this.connection, this.sanitize(moduleName));
-			result = handler.handle(message['user'], pieces.slice(0), moduleStorageFactory,
+			var self = this;
+			var moduleStorageFactory = new this.storageFactory(this.connection, this.sanitize(moduleName));
+			handler.handle(message['user'], pieces.slice(0), moduleStorageFactory,
 				function(result){
 					if (result) {
 						if (result.message) {
