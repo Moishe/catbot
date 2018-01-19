@@ -21,7 +21,7 @@ Quick Start
 
 Clone this repo and get all its dependencies:
 
-```git clone https://github.com/Moishe/catbot.git```
+```git clone https://github.com/fundera/catbot.git```
 
 ```cd catbot```
 
