@@ -21,7 +21,7 @@ exports.handle = function(sender, pieces, db, callback) {
 
   db.run(
     "insert into endorsements (recipient, endorsement, giver) values (?, ?, ?)",
-    [user, endorsement, sender.id]
+    [user, endorsement, sender.profile.display_name]
   );
 
   db.get(
