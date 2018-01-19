@@ -1,35 +1,35 @@
 exports.handle = function(sender, pieces, storageFactory, callback) {
-	var user = pieces[0];
-	console.log("Giving another plus to " + user);
+  var sqlite3 = require("sqlite3").verbose();
+  var db = new sqlite3.Database("db");
 
-	var m = user.match(/<@([UW][A-Z0-9]+)/)
-	if (m){
-		user = m[1];
-	}
+  db.run(
+    'CREATE TABLE IF NOT EXISTS plusses (' +
+      'recipient text NOT NULL,' +
+      'giver text NOT NULL,' +
+      'create_date datetime DEFAULT current_timestamp' +
+      ');');
 
-	if (user == sender){
-		callback({'message': "Hey now, you can't plus yourself!"});
-		return;
-	}
+  var user = pieces[0];
+  console.log("Giving another plus to " + user);
 
-	var userStorage = storageFactory.getUserStorage(user);
-	userStorage.getItem('pluses', function(pluses){
-		if (!pluses) {
-			pluses = 0;
-		}
+  var m = user.match(/<@([UW][A-Z0-9]+)/);
+  if (m) {
+    user = m[1];
+  }
 
-		pluses = parseInt(pluses);
+  if (user == sender.profile.display_name) {
+    callback({ message: "Hey now, you can't plus yourself!" });
+    return;
+  }
 
-		pluses += 1;
+  db.run("insert into plusses (recipient, giver) values (?, ?)", [user, sender.id]);
+  db.get("select count(*) as count from plusses where recipient = ?", user, function(err, row) {
+    if (err) {
+      console.log('error' + err);
+    }
+    callback({
+      message: "One more plus for " + user + "! " + user + " now has " + row.count + " plusses!"
+    });
+  });
 
-		userStorage.setItem('pluses', pluses);
-
-		if (user.match(/[UW][0-9A-Z]+/)){
-			user = '<@' + user + '>';
-		}
-
-		callback({
-			'message': "One more plus for " + user + "! " + user + " now has " + pluses + " pluses!"
-		});
-	});
-}
+};
