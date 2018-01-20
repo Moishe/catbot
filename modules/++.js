@@ -22,7 +22,7 @@ exports.handle = function(sender, pieces, db, callback) {
 
   db.run("insert into plusses (recipient, giver) values (?, ?)", [
     user,
-    sender.id
+    sender.profile.display_name
   ]);
   db.get(
     "select count(*) as count from plusses where recipient = ?",
