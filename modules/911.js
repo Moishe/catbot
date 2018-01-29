@@ -4,7 +4,7 @@ exports.handle = function(sender, pieces, db, callback) {
   const msg = pieces.slice(1).join(" ");
 
   opsgenie.configure({
-    api_key: "efeab72c-f474-47e5-9d57-2f42b2536036"
+    api_key: "efeab72c-f474-47e5-9d57-2f42b2536036" // yeah yeah hardcoded I know
   });
 
   opsgenie.alertV2.create(
