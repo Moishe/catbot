@@ -98,8 +98,9 @@ CatRunner.prototype.handleRtmMessage = function(message) {
         function(result) {
           if (result) {
             if (result.message) {
-              // TODO: allow bots to return attachments; use them here.
-              self.rtm.sendMessage(result.message, message.channel);
+              self.web.chat.postMessage(message.channel, result.message, {
+                as_user: true
+              });
             }
           }
         },
