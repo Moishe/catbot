@@ -1,4 +1,7 @@
-exports.handle = function(sender, pieces, db, callback) {
+exports.handle = function(sender, pieces, storageFactory, callback) {
+  var sqlite3 = require("sqlite3").verbose();
+  var db = new sqlite3.Database("db");
+
   db.run(
     "CREATE TABLE IF NOT EXISTS plusses (" +
       "recipient text NOT NULL," +
@@ -22,7 +25,7 @@ exports.handle = function(sender, pieces, db, callback) {
 
   db.run("insert into plusses (recipient, giver) values (?, ?)", [
     user,
-    sender.profile.display_name
+    sender.id
   ]);
   db.get(
     "select count(*) as count from plusses where recipient = ?",

@@ -1,3 +1,3 @@
 exports.handle = function(sender, pieces, storageFactory, callback) {
-	callback({'message': pieces.join(" ")});
-}
+  callback({ message: pieces.join(" ") });
+};

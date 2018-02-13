@@ -1,28 +1,32 @@
-exports.handle = function(sender, pieces, storageFactory, callback) {
+exports.handle = function(sender, pieces, db, callback) {
   var user = pieces.shift();
+  var m = user.match(/<@([UW][A-Z0-9]+)/);
+  if (m) {
+    user = m[1];
+  }
 
-  var userStorage = storageFactory.getUserStorage(user);
-  userStorage.getItem('endorsements', function(endorsements){
-    endorsements = JSON.parse(endorsements || '{}'); 
-    var annotatedEndorsements = [];
-
-    for (var endorsement in endorsements) {
-      if (endorsements[endorsement] == 1) {
-        annotatedEndorsements.push(endorsement);
+  let endorsements = [];
+  db.each(
+    "select endorsement, count(endorsement) as count from endorsements where recipient = ? " +
+      "group by endorsement",
+    [user],
+    (err, row) => {
+      if (row.count == 1) {
+        endorsements.push(row.endorsement);
       } else {
-        annotatedEndorsements.push(endorsement + " (" + endorsements[endorsement] + ")");
+        endorsements.push(row.endorsement + " (x" + row.count + ")");
       }
-    }
+    },
+    (err, num_rows) => {
+      let message = "";
+      if (endorsements.length > 0) {
+        message = user + " has been endorsed for " + endorsements.join(", ");
+      } else {
+        message =
+          user + " has no endorsements! You should endorse them for something!";
+      }
 
-    var message = '';
-    if (Object.keys(endorsements).length) {
-      message = '*' + user + '* has been endorsed for: ' + annotatedEndorsements.join(', ');
-    } else {
-      message = '*' + user + '* has no endorsements! You should endorse them for something!';
+      callback({ message: message });
     }
-
-    callback({
-      'message': message
-    });    
-  });
-}
+  );
+};

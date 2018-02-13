@@ -1,31 +1,40 @@
-exports.handle = function(sender, pieces, storageFactory, callback, moduleName) {
-	item = pieces[0];
-	fact = pieces.slice(1).join(' ');
+exports.handle = function(sender, pieces, db, callback, moduleName) {
+  const learned_to = pieces[0];
+  const fact = pieces.slice(1).join(" ");
+  const who_learned = sender.profile.display_name;
 
-	if (!item || !fact || item.length === 0 || fact.length === 0){
-		callback({'message': "Sorry, I can't learn nothing!"});
-		return;
-	}
-	// write the thing to the global table
-	storage = storageFactory.getGlobalStorage('learnings');
+  if (!learned_to || !fact || learned_to.length === 0 || fact.length === 0) {
+    callback({ message: "Sorry, I can't learn nothing!" });
+    return;
+  }
 
-	if (fact[0] == '<' && fact[fact.length - 1] == '>'){
-		fact = fact.substr(1, fact.length - 2);
-	}
+  db.run(
+    "CREATE TABLE IF NOT EXISTS learns (" +
+      "learned_to text NOT NULL," +
+      "fact text NOT NULL," +
+      "who_learned text NOT NULL," +
+      "is_quote integer DEFAULT 0," +
+      "create_date datetime DEFAULT current_timestamp" +
+      ");"
+  );
 
-	storage.getItem(item, function(learnings){
-	    learnings = JSON.parse(learnings || '{}');
+  const is_quote = fact.indexOf(" ") > 1 ? 1 : 0;
 
-	    if (Object.keys(learnings).length === 0){
-	        callback({'message': "Cool, that's the first thing I've learned about " + item});
-	    }else if (!learnings[fact]) {
-	        callback({'message': 'Okay, learned something else about ' + item});
-	    }else{
-			callback({'message': "Hmm, <@" + learnings[fact] + "> already taught me that!"});
-			return;
-	    }
-
-		learnings[fact] = sender;
-		storage.setItem(item, JSON.stringify(learnings));
-	});
+  db.get(
+    "select count(*) as count from learns where learned_to = ? and fact = ?",
+    [learned_to, fact],
+    (err, row) => {
+      if (row.count > 0) {
+        callback({ message: ":thumbsup:" });
+        return;
+      }
+      db.run(
+        "insert into learns (learned_to, fact, who_learned, is_quote) values (?, ?, ?, ?)",
+        [learned_to, fact, who_learned, is_quote],
+        err => {
+          callback({ message: "Learned " + fact + " to " + learned_to + "." });
+        }
+      );
+    }
+  );
 };
