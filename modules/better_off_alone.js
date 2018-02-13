@@ -1,5 +1,4 @@
-// Note: NodeJs version needs to be at least 7.6
-const { DeviceDiscovery } = require("sonos");
+// Note: NodeJs version needs to be at least 7.677cfda2cf8b09cb99414b81ae62ae4091a85c08
 const { Sonos } = require("sonos");
 
 exports.handle = function(sender, pieces, db, callback) {
@@ -14,7 +13,11 @@ exports.handle = function(sender, pieces, db, callback) {
     .catch(err => {
       console.log("Error occurred %j", err);
     });
+  callback({
+    message: "Talk to me ..."
+  });
   // Useful to find Eng Sonos IP address again if necessary...
+  // const { DeviceDiscovery } = require("sonos");
   // const search = Sonos.DeviceDiscovery({ timeout: 30000 });
   // search.on("DeviceAvailable", function(device, model) {
   //   console.log("found device at " + device.host);
