@@ -14,6 +14,7 @@ exports.handle = function(sender, pieces, db, callback) {
       console.log("Error occurred %j", err);
     });
   // Useful to find Eng Sonos IP address again if necessary...
+  // const { DeviceDiscovery } = require("sonos");
   // const search = Sonos.DeviceDiscovery({ timeout: 30000 });
   // search.on("DeviceAvailable", function(device, model) {
   //   console.log("found device at " + device.host);
