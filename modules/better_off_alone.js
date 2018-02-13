@@ -1,5 +1,4 @@
 // Note: NodeJs version needs to be at least 7.6
-const { DeviceDiscovery } = require("sonos");
 const { Sonos } = require("sonos");
 
 exports.handle = function(sender, pieces, db, callback) {
